@@ -6,7 +6,7 @@
 /*   By: jlinarez <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 11:11:10 by jlinarez          #+#    #+#             */
-/*   Updated: 2024/04/25 11:38:17 by jlinarez         ###   ########.fr       */
+/*   Updated: 2024/04/25 18:27:56 by jlinarez         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,15 @@
 
 # include <stdlib.h>
 # include <unistd.h>
-#include <limits.h>
-
+# include <limits.h>
 
 /*
 ** Funciones auxiliares para manipulación de cadenas
 */
-size_t	ft_strlen(char const *str);
-char	*ft_strchr(char const *str, int c);
-char	*ft_strcpy(char *dest, const char *src);
-char	*ft_strdup(const char *src);
-char	*ft_strjoin(char *buffer, const char *content);
+int		ft_strlen(char *s);
+char	*ft_strchr(char *s, int c);
+void	*ft_calloc(size_t count, size_t size);
+char	*ft_strjoin(char *s1, char *s2);
 
 /*
 ** Función principal para obtener la siguiente línea de un descriptor de archivo

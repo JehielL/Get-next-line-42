@@ -6,107 +6,110 @@
 /*   By: jlinarez <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 11:10:40 by jlinarez          #+#    #+#             */
-/*   Updated: 2024/04/25 15:17:54 by jlinarez         ###   ########.fr       */
+/*   Updated: 2024/04/25 18:10:38 by jlinarez         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static size_t	find_next_line(char *str, size_t i)
+static char	*ft_next_line(char *buffer)
 {
+	int		i;
+	int		j;
 	char	*next;
 
-	next = str + i;
-	while (*next && *next != '\n')
-		next++;
-	if (*next == '\n')
-		next++;
-	return (next - str);
-}
-
-static char	*create_substring(char *str)
-{
-	char	*new_str;
-	size_t	i;
-	size_t	j;
-
 	i = 0;
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	if (!buffer[i])
+	{
+		free(buffer);
+		return (NULL);
+	}
+	next = ft_calloc(ft_strlen(buffer) - i + 1, sizeof(char));
+	i++;
 	j = 0;
-	if (!*str)
-		return (free(str), NULL);
-	i = find_next_line(str, i);
-	new_str = (char *)malloc((ft_strlen(str) - i) + 1);
-	if (!new_str)
-		return (free(new_str), NULL);
-	while (*(str + i))
-		*(new_str + j++) = *(str + i++);
-	*(new_str + j) = '\0';
-	if (!*new_str)
-		return (free(str), free(new_str), NULL);
-	free(str);
-	return (new_str);
+	while (buffer[i])
+		next[j++] = buffer[i++];
+	next[j] = '\0';
+	free(buffer);
+	return (next);
 }
 
-static char	*read_string(char *str)
+static char	*ft_line(char *buffer)
 {
+	int		i;
 	char	*line;
-	size_t	i;
 
 	i = 0;
-	if (!str || *str == '\0')
+	if (!buffer[i])
 		return (NULL);
-	i = find_next_line(str, i);
-	line = (char *)malloc(sizeof(char) * i + 1);
-	if (!line)
-		return (NULL);
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	line = ft_calloc(i + 2, sizeof(char));
 	i = 0;
-	while (*(str + i) && *(str + i) != '\n')
+	while (buffer[i] && buffer[i] != '\n')
 	{
-		*(line + i) = *(str + i);
+		line[i] = buffer[i];
 		i++;
 	}
-	if (*(str + i) == '\n')
-	{
-		*(line + i) = *(str + i);
-		i++;
-	}
-	*(line + i) = '\0';
+	if (buffer[i] == '\n')
+		line[i] = '\n';
 	return (line);
 }
 
-static char	*free_and_null(char *buff1, char *buff2)
+static char	*ft_read_line(int fd, char *buffer)
 {
-	free(buff1);
-	free(buff2);
-	buff2 = NULL;
-	return (buff2);
+	char	*tmp;
+	ssize_t	read_bytes;
+
+	tmp = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	read_bytes = 1;
+	while (read_bytes != 0 && !ft_strchr(buffer, '\n'))
+	{
+		read_bytes = read(fd, tmp, BUFFER_SIZE);
+		if (read_bytes == -1)
+		{
+			free(buffer);
+			free(tmp);
+			return (NULL);
+		}
+		tmp[read_bytes] = '\0';
+		buffer = ft_strjoin(buffer, tmp);
+	}
+	free(tmp);
+	return (buffer);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*read_cont;
-	int			read_bytes;
-	static char	*read_buffer;
+	static char	*buffer;
+	char		*line;
 
-	read_bytes = 1;
-	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > INT_MAX)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	read_cont = (char *)malloc(sizeof(char) * BUFFER_SIZE + 1);
-	if (!read_cont)
+	buffer = ft_read_line(fd, buffer);
+	if (!buffer)
 		return (NULL);
-	while (!(ft_strchr(read_buffer, '\n')) && read_bytes != 0)
-	{
-		read_bytes = read(fd, read_cont, BUFFER_SIZE);
-		if (read_bytes == -1)
-		{
-			read_buffer = free_and_null(read_cont, read_buffer);
-			return (NULL);
-		}
-		*(read_cont + read_bytes) = '\0';
-		read_buffer = ft_strjoin(read_buffer, read_cont);
-	}
-	free(read_cont);
-	read_cont = read_string(read_buffer);
-	read_buffer = create_substring(read_buffer);
-	return (read_cont);
+	line = ft_line(buffer);
+	buffer = ft_next_line(buffer);
+	return (line);
 }
+
+/*int	main(void)
+{
+	int	fd;
+
+	fd = open("prueba.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		perror ("open");
+		exit(EXIT_FAILURE);
+	}
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	close(fd);
+	return (0);
+}
+*/

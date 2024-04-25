@@ -6,86 +6,84 @@
 /*   By: jlinarez <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 11:10:19 by jlinarez          #+#    #+#             */
-/*   Updated: 2024/04/25 14:53:23 by jlinarez         ###   ########.fr       */
+/*   Updated: 2024/04/25 18:29:44 by jlinarez         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(char const *str)
+int	ft_strlen(char *s)
 {
 	size_t	i;
 
+	if (!s)
+		return (0);
 	i = 0;
-	while (*(str + i))
+	while (s[i] != '\0')
 		i++;
 	return (i);
 }
 
-char	*ft_strchr(char const *str, int c)
+char	*ft_strchr(char *s, int c)
 {
-	if (!str)
-		return (NULL);
-	while (*str)
+	unsigned int	i;
+
+	i = 0;
+	if (!s)
+		return (0);
+	while (s[i] != '\0')
 	{
-		if (*str == (char)c)
-			return ((char *)str);
-		str++;
+		if (s[i] == (char)c)
+			return ((char *)&s[i]);
+		i++;
 	}
-	if (*str == (char)c)
-		return ((char *)str);
-	else
-		return (NULL);
+	if ((char)c == s[i])
+		return ((char *)&s[i]);
+	return (NULL);
 }
 
-char	*ft_strcpy(char *dest, const char *src)
+void	*ft_calloc(size_t count, size_t size)
 {
-	char	*dest_start;
+	char	*mem;
+	size_t	i;
 
-	dest_start = dest;
-	while (*src)
-		*dest++ = *src++;
-	*dest = '\0';
-	return (dest_start);
+	i = 0;
+	mem = malloc(count * size);
+	if (!mem)
+		return (0);
+	while (i < size * count)
+	{
+		mem[i] = 0;
+		i++;
+	}
+	return (mem);
 }
 
-char	*ft_strdup(const char *src)
+char	*ft_strjoin(char *s1, char *s2)
 {
-	size_t	len;
-	char	*dest;
+	char	*new;
+	size_t	i;
+	size_t	j;
+	size_t	len_s1;
+	size_t	len_s2;
 
-	len = ft_strlen(src);
-	dest = (char *)malloc(sizeof(char) * (len + 1));
-	if (!dest)
+	len_s1 = ft_strlen(s1);
+	len_s2 = ft_strlen(s2);
+	new = ft_calloc((len_s1 + len_s2 + 1), sizeof(char));
+	i = 0;
+	j = 0;
+	if (new == NULL)
 		return (NULL);
-	return (ft_strcpy(dest, src));
-}
-
-char	*ft_strjoin(char *buffer, const char *content)
-{
-	size_t	buffer_len;
-	size_t	content_len;
-	char	*result;
-	char	*result_ptr;
-	char	*src;
-
-	buffer_len = 0;
-	if (!buffer && !content)
-		return (NULL);
-	if (buffer)
-		buffer_len = ft_strlen(buffer);
-	content_len = ft_strlen(content);
-	result = (char *)malloc(sizeof(char) * (buffer_len + content_len + 1));
-	if (!result)
-		return (NULL);
-	result_ptr = result;
-	src = buffer;
-	while (src && *src)
-		*result_ptr++ = *src++;
-	src = (char *)content;
-	while (src && *src)
-		*result_ptr++ = *src++;
-	*result_ptr = '\0';
-	free(buffer);
-	return (result);
+	while (i < len_s1)
+	{
+		new[i] = s1[i];
+		i++;
+	}
+	while (j < len_s2)
+	{
+		new[i + j] = s2[j];
+		j++;
+	}
+	free(s1);
+	return (new);
 }
